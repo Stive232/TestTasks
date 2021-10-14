@@ -33,17 +33,22 @@ namespace Dog.API.Services
 
     public void SavePictureInDesktop(string pictureUrl)
     {
-      var tmp = pictureUrl.Split("/");
+      //Разделяю строку "pictureUrl" символом "/" и заношу получившиеся строки в массив. 
+      var tmpArray = pictureUrl.Split("/");
+      // Получаю путь к рабочему столу.
       var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
       
-      DirectoryInfo dirInfo = new DirectoryInfo($"{desktopPath}\\{tmp[4]}");
+      //Создаю объект DictionaryInfo, с помощью которого буду создавать каталог на рабочем столе.
+      DirectoryInfo dirInfo = new DirectoryInfo($"{desktopPath}\\{tmpArray[4]}");
       if (!dirInfo.Exists)
       {
         dirInfo.Create();
       }
+
+      // С помощью webClient сохраняю картинку в созданный каталог.
       WebClient webClient = new WebClient();
       
-      webClient.DownloadFile(pictureUrl, $"{desktopPath}\\{tmp[4]}\\{tmp[5]}");
+      webClient.DownloadFile(pictureUrl, $"{desktopPath}\\{tmpArray[4]}\\{tmpArray[5]}");
     }
   }
 }

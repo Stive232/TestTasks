@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dog.API.Configuration
 {
+  /// <summary>
+  ///  Класс для внедрения зависимостей.
+  /// </summary>
   public static class DiContainer
   {
     static ServiceProvider _serviceProvider;

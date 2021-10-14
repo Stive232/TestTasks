@@ -3,6 +3,9 @@ using System.Net.Http;
 
 namespace Dog.API.Services
 {
+  /// <summary>
+  ///  Универсальный класс по отправки запросов к API.
+  /// </summary>
   public class RequestSender
   {
     private HttpClient _client;
