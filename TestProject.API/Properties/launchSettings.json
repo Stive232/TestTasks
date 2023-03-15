@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "TestProject.API": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:60924;http://localhost:60925"
+    }
+  }
+}
