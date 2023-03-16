@@ -6,8 +6,8 @@ namespace TestProject.Repositories.Interfaces
     public interface IDbDocumentRepository
     {
         void Insert(DbDocument document);
-        List<DbDocument> GetByLeadId(string leadId);
+        List<DbDocument> GetByUserId(string userId);
         List<DbDocument> GetByContractNumber(string contractNumber);
-        void DeleteByLeadIdOrContractNumber(Guid? leadId, string? contractNumber);
+        void DeleteByUserIdOrContractNumber(string? userId, string? contractNumber);
     }
 }

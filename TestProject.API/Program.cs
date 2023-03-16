@@ -1,4 +1,6 @@
 
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 using TestProject.Logic.Services;
 using TestProject.Logic.Services.Document;
@@ -9,7 +11,19 @@ using TestProject.Repositories.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "TestProject API",
+    });
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+
+
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSingleton<DocumentsData>();
@@ -19,8 +33,11 @@ builder.Services.AddTransient<IDocumentService, DocumentService>();
 var app = builder.Build();
 
 
+if(app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
 
-app.UseDeveloperExceptionPage();
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -72,7 +89,7 @@ app.Run(async (context) =>
                         switch(i)
                         {
                             case 0 :
-                                model.LeadId = tmpArray[0].Trim(' ').Replace("\n", "");
+                                model.UserId = tmpArray[0].Trim(' ').Replace("\n", "");
                                 break;
                             case 1 :
                                 model.LastName = tmpArray[1].Trim(' ').Replace("\n", "");

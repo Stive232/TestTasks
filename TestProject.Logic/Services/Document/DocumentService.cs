@@ -39,9 +39,9 @@ public class DocumentService : IDocumentService
         return result;
     }
 
-    public List<DocumentModel> GetByLeadId(string leadId)
+    public List<DocumentModel> GetByUserId(string userId)
     {
-        var documents = _documentRepository.GetByLeadId(leadId);
+        var documents = _documentRepository.GetByUserId(userId);
 
         List<DocumentModel> result = new();
 
@@ -53,9 +53,8 @@ public class DocumentService : IDocumentService
         return result;
     }
 
-    public void DeleteByLeadIdOrContractNumber(string? leadId, string? contractNumber)
+    public void DeleteByUserIdOrContractNumber(string? userId, string? contractNumber)
     {
-        //ToDo
-        throw new NotImplementedException();
+        _documentRepository.DeleteByUserIdOrContractNumber(userId, contractNumber);
     }
 }

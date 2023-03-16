@@ -5,25 +5,24 @@ namespace TestProject.Repositories
 {
     public class DocumentsData
     {
+        private ulong _count;
+        private object _locker = new();
 
-        public ConcurrentBag<DbDocument> Data = new();
+        public ConcurrentDictionary<ulong, DbDocument> Data = new();
 
         public void Add(DbDocument document)
         {
-            Data.Add(document);
+            lock (_locker)
+            {
+                if (Data.TryAdd(_count, document))
+                {
+                    _count++;
+                }
+                else
+                {
+                    throw new Exception("Запись данных в базу прошла не успешно.");
+                }
+            }
         }
-
-        //public void Add(DbDocument document)
-        //{
-        //    if(Data.TryAdd(_count, document))
-        //    {
-        //        _count++;
-        //    }
-        //    else 
-        //    {
-        //        throw new Exception("Запись данных в базу прошла не успешно.");
-        //    }
-        //}
-
     }
 }

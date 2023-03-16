@@ -17,19 +17,25 @@ namespace TestProject.Repositories
             _documentDataStorage.Add(document);
         }
 
-        public List<DbDocument> GetByLeadId(string leadId)
+        public List<DbDocument> GetByUserId(string userId)
         {
-            return _documentDataStorage.Data.Where(x => x.LeadId == leadId).ToList<DbDocument>();
+            return _documentDataStorage.Data.Where(x => x.Value.UserId == userId && x.Value.IsDeleted == false).Select(x => x.Value).ToList<DbDocument>();
         }
 
         public List<DbDocument> GetByContractNumber(string contractNumber)
         {
-            return _documentDataStorage.Data.Where(x => contractNumber.Equals(x.ContractNumber)).ToList<DbDocument>();
+            return _documentDataStorage.Data.Where(x => contractNumber.Equals(x.Value.ContractNumber) && x.Value.IsDeleted == false).Select(x => x.Value).ToList<DbDocument>();
         }
 
-        public void DeleteByLeadIdOrContractNumber(Guid? leadId, string? contractNumber)
-        {
-            //ToDo:
+        public void DeleteByUserIdOrContractNumber(string? userId, string? contractNumber)
+        { 
+            foreach(var item in _documentDataStorage.Data)
+            {
+                if(item.Value.UserId == userId || item.Value.ContractNumber == contractNumber)
+                {
+                    item.Value.IsDeleted = true;
+                }
+            }
         }
     }
 }
