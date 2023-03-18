@@ -4,6 +4,7 @@ using AutoMapper;
 using FluentAssertions;
 using TestProject.Logic.Services.Document;
 using TestProject.Logic.Services.Document.Models;
+using Xunit;
 
 namespace TestProject.Logic.UnitTests
 {
@@ -23,7 +24,7 @@ namespace TestProject.Logic.UnitTests
             _fixture = new Fixture().Customize(new AutoMoqCustomization());
         }
 
-        [Test]
+        [Fact]
         public void ShouldSuccessfullyInsertDocumentModelTest()
         {
             //Given

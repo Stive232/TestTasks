@@ -110,7 +110,7 @@ app.Run(async (context) =>
 
                 var documentService = app.Services.GetService<IDocumentService>();
 
-                documentService.Insert(documents);
+                await documentService.Insert(documents);
             }            
         }
         await response.WriteAsync("Файлы успешно загружены");

@@ -3,8 +3,8 @@
 namespace TestProject.Logic.Services;
 public interface IDocumentService
 {
-   void Insert(List<DocumentModel> document);
-   List<DocumentModel> GetByUserId(string userId);
-   List<DocumentModel> GetByContractNumber(string contractNumber);
-   void DeleteByUserIdOrContractNumber(string? userId, string? contractNumber);
+   Task<List<ulong>> Insert(List<DocumentModel> document);
+   Task<List<DocumentModel>?> GetByUserId(string userId);
+   Task<List<DocumentModel>> GetByContractNumber(string contractNumber);
+   Task<ulong> DeleteByUserIdOrContractNumber(string? userId, string? contractNumber);
 }
