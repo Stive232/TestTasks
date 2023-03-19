@@ -1,5 +1,6 @@
 using AutoFixture;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using TestProject.Logic.Services.Document;
@@ -35,23 +36,42 @@ namespace TestProject.Unit.Tests
             });
 
             _mapper = new Mapper(config);
-            _documentService = new DocumentService(_repository, _mapper, _loggerMock.Object);
+            //_documentService = new DocumentService(_repository, _mapper, _loggerMock.Object);
+            _documentService = new DocumentService(_repository, _mapper);
         }
 
         [Fact]
-        public void InsertDocumentTest()
+        public async Task InsertDocumentTest()
         {
             //Given
-            var document = _fixture.Create<DocumentModel?>();
-            List<DocumentModel>? documents = new();
+            //var document = _fixture.Build<DocumentModel>()
+            //    .With(x => x.UserId, "11")
+            //    .With(x => x.WithdrawalAmount, 23)
+            //    .With(x => x.ContractNumber, "45")
+            //    .With(x => x.FirstName, "Andrey")
+            //    .With(x => x.LastName, "Popov")
+            //    .Create();
+            var document = new DocumentModel
+            {
+                UserId = "11",
+                WithdrawalAmount = 23,
+                ContractNumber = "45",
+                FirstName = "Andrey",
+                LastName = "Popov"
+            };
+            List<DocumentModel> documents = new();
             documents.Add(document);
 
-            _documentService.Insert(documents);
+            _documentService.SaveToCollection(documents);
 
-            List<DocumentModel>? result = _documentService.GetByUserId(documents.First().UserId).Result;
-
+            List<DocumentModel> result = await _documentService.GetByUserIdAsync(document.UserId);
             //Then
-            Assert.Equal(documents, result);
+            Assert.Equal(documents[0], result[0]);
+        }
+
+        public void GetDocumentByUserIdTest()
+        {
+
         }
 
         [Fact]
@@ -64,7 +84,7 @@ namespace TestProject.Unit.Tests
             var expectedResult = new List<DocumentModel>() { };
 
             //When
-            List<DocumentModel>? result = sut.GetByUserId(documents.First().UserId).Result;
+            List<DocumentModel> result = sut.GetByUserIdAsync(documents.First().UserId).Result;
 
             //Then
             Assert.Equal(expectedResult, result);

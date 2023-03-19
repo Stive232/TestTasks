@@ -21,7 +21,7 @@ namespace TestProject.Repositories
             }
         }
 
-        public ulong DeleteByUserIdOrContractNumber(string? userId, string? contractNumber)
+        public ulong DeleteByUserIdOrContractNumber(string userId, string contractNumber)
         {
             ulong count = 0;
 
@@ -49,5 +49,11 @@ namespace TestProject.Repositories
             .Select(x => x.Value)
             .ToList();
 
+        public DbDocument GetById(ulong documentId)
+        {
+            _data.TryGetValue(documentId, out DbDocument value);
+
+            return value;
+        }
     }
 }

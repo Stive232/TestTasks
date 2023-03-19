@@ -5,9 +5,10 @@ namespace TestProject.Repositories.Interfaces
 {
     public interface IDbDocumentRepository
     {
-        ulong Add(DbDocument document);
-        List<DbDocument> GetByUserId(string userId);
-        List<DbDocument> GetByContractNumber(string contractNumber);
-        ulong DeleteByUserIdOrContractNumber(string? userId, string? contractNumber);
+        public ulong Add(DbDocument document);
+        public List<DbDocument> GetByUserId(string userId);
+        public List<DbDocument> GetByContractNumber(string contractNumber);
+        public DbDocument GetById(ulong documentId);
+        public ulong DeleteByUserIdOrContractNumber(string userId, string contractNumber);
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace TestProject.Logic.Services.Document.Models;
-public class DocumentModel //ToDo: придумать нормальное название класса
+
+public class DocumentModel
 {
      public string UserId { get; set; }
      public string LastName { get; set; }

@@ -1,10 +1,12 @@
-﻿using TestProject.Logic.Services.Document.Models;
+﻿using Microsoft.AspNetCore.Http;
+using TestProject.Logic.Services.Document.Models;
 
 namespace TestProject.Logic.Services;
 public interface IDocumentService
 {
-   Task<List<ulong>> Insert(List<DocumentModel> document);
-   Task<List<DocumentModel>?> GetByUserId(string userId);
-   Task<List<DocumentModel>> GetByContractNumber(string contractNumber);
-   Task<ulong> DeleteByUserIdOrContractNumber(string? userId, string? contractNumber);
+    public Task<List<ulong>> InsertAsync(IFormFile file);
+    public Task<List<DocumentModel>> GetByUserIdAsync(string userId);
+    public Task<DocumentModel> GetById(ulong documentId);
+    public Task<List<DocumentModel>> GetByContractNumberAsync(string contractNumber);
+    public Task<ulong> DeleteByUserIdOrContractNumberAsync(string userId, string contractNumber);
 }

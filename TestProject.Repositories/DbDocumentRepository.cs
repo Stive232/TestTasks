@@ -24,9 +24,16 @@ namespace TestProject.Repositories
                 }
                 else
                 {
-                    throw new Exception("Запись данных в базу прошла не успешно.");
+                    throw new Exception("Запись данных в базу прошла не успешно."); //ToDo: исправить
                 }
             }
+        }
+
+        public DbDocument GetById(ulong documentId)
+        {
+            _documentDataStorage.Data.TryGetValue(documentId, out DbDocument value);
+
+            return value;
         }
 
         public List<DbDocument> GetByUserId(string userId) => 
@@ -41,7 +48,7 @@ namespace TestProject.Repositories
             .Select(x => x.Value)
             .ToList();
 
-        public ulong DeleteByUserIdOrContractNumber(string? userId, string? contractNumber)
+        public ulong DeleteByUserIdOrContractNumber(string userId, string contractNumber)
         {
             ulong count = 0;
 
