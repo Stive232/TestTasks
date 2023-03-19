@@ -13,11 +13,11 @@ namespace TestProject.Repositories
         {
             if (_data.TryAdd(_count, document))
             { 
-                return _count++; //ToDo: Проверить работоспособность
+                return _count++;
             }
             else
             {
-                throw new Exception("Запись данных в базу прошла не успешно."); //ToDO: Повторно добавить данные в коллекцию.
+                throw new Exception("Error when writing to the database.");
             }
         }
 

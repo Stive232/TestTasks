@@ -6,7 +6,6 @@ namespace TestProject.Logic.Mapping;
 
 public class DocumentMappingProfile : Profile
 {
-    //ToDo сделать еще одну модель ответа и CreateDocumentRequest и смапить.()
     public DocumentMappingProfile()
     {
         CreateMap<DocumentModel, DbDocument>()
@@ -16,13 +15,6 @@ public class DocumentMappingProfile : Profile
             .ForMember(dest => dest.ContractNumber, opt => opt.MapFrom(c => c.ContractNumber))
             .ForMember(dest => dest.WithdrawalAmount, opt => opt.MapFrom(c => c.WithdrawalAmount))
             .ReverseMap();
-
-        //CreateMap<DbDocument, DocumentModel>()
-        //    .ForMember(dest => dest.UserId, opt => opt.MapFrom(c => c.UserId))
-        //    .ForMember(dest => dest.FirstName, opt => opt.MapFrom(c => c.FirstName))
-        //    .ForMember(dest => dest.LastName, opt => opt.MapFrom(c => c.LastName))
-        //    .ForMember(dest => dest.ContractNumber, opt => opt.MapFrom(c => c.ContractNumber))
-        //    .ForMember(dest => dest.WithdrawalAmount, opt => opt.MapFrom(c => c.WithdrawalAmount));
     }
 }
 

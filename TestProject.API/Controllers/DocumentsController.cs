@@ -38,12 +38,12 @@ public class DocumentController : ControllerBase
     /// <param name="userId">UserId</param>
     /// <returns>List DocumentModel</returns>
     [HttpGet("user-id")]
-    public IActionResult GetDocumentsByUserId(string userId)
+    public async Task<IActionResult> GetDocumentsByUserId(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrWhiteSpace(userId))
             return BadRequest("UserId is required.");
 
-        var documents = _documentService.GetByUserIdAsync(userId);
+        var documents = await _documentService.GetByUserIdAsync(userId);
 
         return Ok(documents);
     }
@@ -56,9 +56,6 @@ public class DocumentController : ControllerBase
     [HttpGet("contract-number")]
     public async Task<IActionResult> GetByContractNumber(string contractNumber)
     {
-        if (string.IsNullOrEmpty(contractNumber))
-            return BadRequest("ContractNumber is required.");
-
         var documents = await _documentService.GetByContractNumberAsync(contractNumber);
 
         return Ok(documents);
@@ -72,7 +69,7 @@ public class DocumentController : ControllerBase
     [HttpGet("by-id")]
     public async Task<IActionResult> GetDocumentById([FromQuery] ulong documentId)
     {
-        var document = await _documentService.GetById(documentId);
+        var document = await _documentService.GetByIdAsync(documentId);
 
         return Ok(document);
     }

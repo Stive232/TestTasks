@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System.Text;
 using TestProject.Core.Infrastructure.Exceptions;
 using TestProject.Logic.Services.Document.Models;
@@ -12,15 +11,7 @@ namespace TestProject.Logic.Services.Document;
 public class DocumentService : IDocumentService
 {
     private readonly IMapper _mapper;
-   // private readonly ILogger<DocumentService> _logger;
     private readonly IDbDocumentRepository _documentRepository;
-
-    //public DocumentService(IDbDocumentRepository documentRepository, IMapper mapper, ILogger<DocumentService> logger)
-    //{
-    //    _mapper = mapper;
-    //    _logger = logger;
-    //    _documentRepository = documentRepository;
-    //}
 
     public DocumentService(IDbDocumentRepository documentRepository, IMapper mapper)
     {
@@ -31,7 +22,7 @@ public class DocumentService : IDocumentService
     public async Task<List<ulong>> InsertAsync(IFormFile file)
     {
         string textFromFile = await ReadFromFileAsync(file);
-        if (!string.IsNullOrEmpty(textFromFile))
+        if (!string.IsNullOrWhiteSpace(textFromFile))
         {
             List<DocumentModel> documents = ConvertToListDocumentModels(textFromFile);
 
@@ -39,7 +30,7 @@ public class DocumentService : IDocumentService
         }
         else
         {
-            return null; //ToDo: можно ли возвращать null и как его тогда обрабатывать выше?
+            throw new InvalidArgumentException("The file should not be empty");
         }
     }
 
@@ -56,7 +47,7 @@ public class DocumentService : IDocumentService
         return ids;
     }
 
-    public async Task<DocumentModel> GetById(ulong documentId)
+    public async Task<DocumentModel> GetByIdAsync(ulong documentId)
     {
         DbDocument document = _documentRepository.GetById(documentId);
         if(document == null)
@@ -67,7 +58,7 @@ public class DocumentService : IDocumentService
 
     public async Task<List<DocumentModel>> GetByContractNumberAsync(string contractNumber)
     {
-        if (contractNumber == null)
+        if (string.IsNullOrWhiteSpace(contractNumber))
         {
             throw new InvalidArgumentException("ContractNumber is required.");
         }
@@ -88,11 +79,13 @@ public class DocumentService : IDocumentService
 
     public async Task<List<DocumentModel>> GetByUserIdAsync(string userId)
     {
-        if(userId == null)
+        if(string.IsNullOrWhiteSpace(userId))
         {
             throw new InvalidArgumentException("UserId is required.");
         }
+
         List<DbDocument> documents = _documentRepository.GetByUserId(userId);
+
         if (documents.Count == 0)
             throw new NotFoundException(typeof(DocumentModel), userId);
 
@@ -108,7 +101,7 @@ public class DocumentService : IDocumentService
 
     public Task<ulong> DeleteByUserIdOrContractNumberAsync(string userId, string contractNumber)
     {
-        if (string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(contractNumber))
+        if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(contractNumber))
             throw new InvalidArgumentException("One of the parameters must not equal an empty string and null");
 
         return Task.FromResult(_documentRepository.DeleteByUserIdOrContractNumber(userId, contractNumber));
@@ -122,28 +115,36 @@ public class DocumentService : IDocumentService
         {
             DocumentModel model = new();
             var tmpArray = item.Split("--");
-            for (int i = 0; i < tmpArray.Length; i++)
+
+            try
             {
-                switch (i)
+                for (int i = 0; i < tmpArray.Length; i++)
                 {
-                    case 0:
-                        model.UserId = tmpArray[0].Trim(' ').Replace("\n", "");
-                        break;
-                    case 1:
-                        model.LastName = tmpArray[1].Trim(' ').Replace("\n", "");
-                        break;
-                    case 2:
-                        model.FirstName = tmpArray[2].Trim(' ').Replace("\n", "");
-                        break;
-                    case 3:
-                        model.ContractNumber = tmpArray[3].Trim(' ').Replace("\n", "");
-                        break;
-                    case 4:
-                        model.WithdrawalAmount = Convert.ToDecimal(tmpArray[4].Trim(' ').Replace("\n", ""));
-                        break;
+                    switch (i)
+                    {
+                        case 0:
+                            model.UserId = tmpArray[0].Trim(' ').Replace("\n", "");
+                            break;
+                        case 1:
+                            model.LastName = tmpArray[1].Trim(' ').Replace("\n", "");
+                            break;
+                        case 2:
+                            model.FirstName = tmpArray[2].Trim(' ').Replace("\n", "");
+                            break;
+                        case 3:
+                            model.ContractNumber = tmpArray[3].Trim(' ').Replace("\n", "");
+                            break;
+                        case 4:
+                            model.WithdrawalAmount = Convert.ToDecimal(tmpArray[4].Trim(' ').Replace("\n", ""));
+                            break;
+                    }
                 }
+                documents.Add(model);
             }
-            documents.Add(model);
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         return documents;

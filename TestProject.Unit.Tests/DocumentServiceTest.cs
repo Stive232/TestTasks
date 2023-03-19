@@ -1,98 +1,146 @@
+using Moq;
 using AutoFixture;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Moq;
 using TestProject.Logic.Services.Document;
 using TestProject.Logic.Services.Document.Models;
 using TestProject.Repositories;
 using TestProject.Repositories.Entities;
 
-namespace TestProject.Unit.Tests
+namespace TestProject.Unit.Tests;
+
+public class DocumentServiceTest
 {
-    public class DocumentServiceTest
+    private IFixture _fixture;
+    private readonly IMapper _mapper;
+    private readonly DocumentService _documentService;
+    private readonly DbDocumentRepositoryStub _repository;
+    private Mock<ILogger<DocumentService>> _loggerMock;
+
+    public DocumentServiceTest()
     {
-        private IFixture _fixture;
-        private readonly IMapper _mapper;
-        private readonly DocumentService _documentService;
-        private readonly DbDocumentRepositoryStub _repository;
-        private Mock<ILogger<DocumentService>> _loggerMock;
+        _fixture = new Fixture();
+        _repository = new DbDocumentRepositoryStub();
+        _loggerMock = _fixture.Freeze<Mock<ILogger<DocumentService>>>();
 
-        public DocumentServiceTest()
+        var config = new MapperConfiguration(opts =>
         {
-            _fixture = new Fixture();
-            _repository = new DbDocumentRepositoryStub();
-            _loggerMock = _fixture.Freeze<Mock<ILogger<DocumentService>>>();
+            opts.CreateMap<DocumentModel, DbDocument>()
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(c => c.UserId))
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(c => c.FirstName))
+            .ForMember(dest => dest.LastName, opt => opt.MapFrom(c => c.LastName))
+            .ForMember(dest => dest.ContractNumber, opt => opt.MapFrom(c => c.ContractNumber))
+            .ForMember(dest => dest.WithdrawalAmount, opt => opt.MapFrom(c => c.WithdrawalAmount))
+            .ReverseMap();
+        });
 
-            var config = new MapperConfiguration(opts =>
-            {
-                opts.CreateMap<DocumentModel, DbDocument>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(c => c.UserId))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(c => c.FirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(c => c.LastName))
-                .ForMember(dest => dest.ContractNumber, opt => opt.MapFrom(c => c.ContractNumber))
-                .ForMember(dest => dest.WithdrawalAmount, opt => opt.MapFrom(c => c.WithdrawalAmount))
-                .ReverseMap();
-            });
+        _mapper = new Mapper(config);
+        //_documentService = new DocumentService(_repository, _mapper, _loggerMock.Object);
+        _documentService = new DocumentService(_repository, _mapper);
+    }
 
-            _mapper = new Mapper(config);
-            //_documentService = new DocumentService(_repository, _mapper, _loggerMock.Object);
-            _documentService = new DocumentService(_repository, _mapper);
-        }
+    [Fact]
+    public async Task InsertDocumentTest()
+    {
+        //Given
+        var document = _fixture.Build<DocumentModel>().Create();
+        
+        List<DocumentModel> documents = new();
+        documents.Add(document);
 
-        [Fact]
-        public async Task InsertDocumentTest()
-        {
-            //Given
-            //var document = _fixture.Build<DocumentModel>()
-            //    .With(x => x.UserId, "11")
-            //    .With(x => x.WithdrawalAmount, 23)
-            //    .With(x => x.ContractNumber, "45")
-            //    .With(x => x.FirstName, "Andrey")
-            //    .With(x => x.LastName, "Popov")
-            //    .Create();
-            var document = new DocumentModel
-            {
-                UserId = "11",
-                WithdrawalAmount = 23,
-                ContractNumber = "45",
-                FirstName = "Andrey",
-                LastName = "Popov"
-            };
-            List<DocumentModel> documents = new();
-            documents.Add(document);
+        _documentService.SaveToCollection(documents);
+        
+        //When
+        List<DocumentModel> result = await _documentService.GetByUserIdAsync(document.UserId);
+        
+        //Then
+        Assert.Equal(document.FirstName, result.First().FirstName);
+        Assert.Equal(document.LastName, result.First().LastName);
+        Assert.Equal(document.WithdrawalAmount, result.First().WithdrawalAmount);
+        Assert.Equal(document.ContractNumber, result.First().ContractNumber);
+        Assert.Equal(document.UserId, result.First().UserId);
+    }
 
-            _documentService.SaveToCollection(documents);
+    [Fact]
+    public async Task GetDocumentByContractNumberTest()
+    {
+        //Given
+        var document = _fixture.Build<DocumentModel>().Create();
 
-            List<DocumentModel> result = await _documentService.GetByUserIdAsync(document.UserId);
-            //Then
-            Assert.Equal(documents[0], result[0]);
-        }
+        List<DocumentModel> documents = new();
+        documents.Add(document);
 
-        public void GetDocumentByUserIdTest()
-        {
+        _documentService.SaveToCollection(documents);
 
-        }
+        //When
+        List<DocumentModel> result = await _documentService.GetByContractNumberAsync(document.ContractNumber);
 
-        [Fact]
-        public void ShouldSuccessfullyInsertDocumentModelTest()
-        {
-            //Given
-            var sut = GetSut();
+        //Then
+        Assert.Equal(document.FirstName, result.First().FirstName);
+        Assert.Equal(document.LastName, result.First().LastName);
+        Assert.Equal(document.WithdrawalAmount, result.First().WithdrawalAmount);
+        Assert.Equal(document.ContractNumber, result.First().ContractNumber);
+        Assert.Equal(document.UserId, result.First().UserId);
+    }
 
-            var documents = _fixture.Create<List<DocumentModel>>();
-            var expectedResult = new List<DocumentModel>() { };
+    [Fact]
+    public async Task GetDocumentGetByIdTest()
+    {
+        //Given
+        var document = _fixture.Build<DocumentModel>().Create();
 
-            //When
-            List<DocumentModel> result = sut.GetByUserIdAsync(documents.First().UserId).Result;
+        List<DocumentModel> documents = new();
+        documents.Add(document);
 
-            //Then
-            Assert.Equal(expectedResult, result);
-        }
+        _documentService.SaveToCollection(documents);
 
-        private DocumentService GetSut()
-        {
-            return _fixture.Create<DocumentService>();
-        }
+        //When
+        DocumentModel result = await _documentService.GetByIdAsync(0);
+
+        //Then
+        Assert.Equal(document.FirstName, result.FirstName);
+        Assert.Equal(document.LastName, result.LastName);
+        Assert.Equal(document.WithdrawalAmount, result.WithdrawalAmount);
+        Assert.Equal(document.ContractNumber, result.ContractNumber);
+        Assert.Equal(document.UserId, result.UserId);
+    }
+
+    [Fact]
+    public async Task DeleteByUserIdTest()
+    {
+        //Given
+        var document = _fixture.Build<DocumentModel>().Create();
+
+        List<DocumentModel> documents = new();
+        documents.Add(document);
+
+        _documentService.SaveToCollection(documents);
+
+        //When
+        var deletedRecordsCount =  await _documentService.DeleteByUserIdOrContractNumberAsync(document.UserId, "");
+
+        ulong expected = 1;
+        //Then
+        Assert.Equal(deletedRecordsCount, expected);
+    }
+
+    [Fact]
+    public async Task DeleteByontractNumberTest()
+    {
+        //Given
+        var document = _fixture.Build<DocumentModel>().Create();
+
+        List<DocumentModel> documents = new();
+        documents.Add(document);
+
+        _documentService.SaveToCollection(documents);
+
+        //When
+        var deletedRecordsCount = await _documentService.DeleteByUserIdOrContractNumberAsync("", document.ContractNumber);
+
+        ulong expected = 1;
+
+        //Then
+        Assert.Equal(deletedRecordsCount, expected);
     }
 }
